@@ -1,21 +1,22 @@
 {
-	"name": "iit/yii2-aliyun-component",
-	"description": "Yii2文件管理组件",
-	"type": "yii2-extension",
-	"version": "1.0.0",
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "ilovintit",
-			"email": "ilovintit@gmail.com"
-		}
-	],
-	"require": {
-        "yiisoft/yii2": "*"
+    "name": "iit/yii2-aliyun-component",
+    "description": "Yii2阿里云服务API组件",
+    "type": "yii2-extension",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ilovintit",
+            "email": "ilovintit@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*",
+        "guzzlehttp/guzzle": "~4.0"
     },
-	"autoload": {
-		"psr-4": {
-			"iit\\file\\": ""
-		}
-	}
+    "autoload": {
+        "psr-4": {
+            "iit\\aliyun\\": ""
+        }
+    }
 }
