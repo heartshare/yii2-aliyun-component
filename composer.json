@@ -12,6 +12,9 @@
     ],
     "require": {
         "yiisoft/yii2": "*",
+        "iit/yii2-file-component": "*",
+        "iit/yii2-queue-component": "*",
+        "iit/yii2-wechat-component": "*",
         "nategood/httpful": "*"
     },
     "autoload": {
