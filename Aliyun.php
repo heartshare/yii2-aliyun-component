@@ -22,17 +22,19 @@ class Aliyun extends Object
     const HEAD_METHOD = 'HEAD';
     const MQS_INTERFACE = 'MQS';
     const OSS_INTERFACE = 'OSS';
-    const TYPE = 'text/xml;utf-8';
     public $accessKey;
     public $accessSecret;
     private $_date;
-    private $_headers;
+    private $_headers = [];
     private $_resource = '/';
+    private $_resourcePrefix = '';
     private $_resourceParam;
     private $_body;
     private $_interface;
     private $_method;
     private $_url;
+    private $_type;
+    private $_length;
 
     public function init()
     {
@@ -150,14 +152,48 @@ class Aliyun extends Object
         return $this->_method;
     }
 
-    public function getMd5()
+    public function getType()
     {
-        return $this->getBody() === null ? '' : base64_encode(md5($this->getBody()));
+        return $this->_type;
+    }
+
+    public function setType($type)
+    {
+        $this->_type = $type;
+        return $this;
     }
 
     public function getAllResource()
     {
         return $this->getResource() . ($this->getResourceParams() === null ? '' : '?' . http_build_query($this->getResourceParams()));
+    }
+
+    public function setLength($length)
+    {
+        $this->_length = $length;
+        return $this;
+    }
+
+    public function getLength()
+    {
+        if ($this->_length === null) {
+            $body = $this->getBody();
+            if (!empty($body) && is_string($body)) {
+                $this->setLength(strlen($body));
+            }
+        }
+        return $this->_length;
+    }
+
+    public function getResourcePrefix()
+    {
+        return $this->_resourcePrefix;
+    }
+
+    public function setResourcePrefix($prefix)
+    {
+        $this->_resourcePrefix = $prefix;
+        return $this;
     }
 
     /**
@@ -170,8 +206,8 @@ class Aliyun extends Object
             $requestHeaders = ArrayHelper::merge([
                 'Host' => $this->getUrl(),
                 'Date' => $this->getDate(),
-                'Content-Type' => self::TYPE,
-                'Content-MD5' => $this->getMd5(),
+                'Content-Length' => $this->getLength(),
+                'Content-Type' => $this->getType(),
                 'Authorization' => $this->signature(),
             ], $this->getHeaders());
             $url = 'http://' . $this->getUrl() . $this->getAllResource();
@@ -190,8 +226,6 @@ class Aliyun extends Object
     {
         if ($this->getMethod() === null) {
             throw new InvalidParamException('Please Input Method');
-        } elseif ($this->getHeaders() === null) {
-            throw new InvalidParamException('Please Input Headers');
         } elseif ($this->getInterface() === null) {
             throw new InvalidParamException('Please Input Interface');
         } elseif ($this->getUrl() === null) {
@@ -204,19 +238,20 @@ class Aliyun extends Object
     public function signature()
     {
         $headers = $this->getHeaders();
-        ksort($headers);
         $headers_string = '';
-        foreach ($headers as $key => $value) {
-            $headers_string .= join(':', [strtolower($key), $value . "\n"]);
+        if (!empty($headers)) {
+            ksort($headers);
+            foreach ($headers as $key => $value) {
+                $headers_string .= join(':', [strtolower($key), $value . "\n"]);
+            }
         }
         $signatureString = sprintf(
-            "%s\n%s\n%s\n%s\n%s%s",
+            "%s\n\n%s\n%s\n%s%s",
             $this->getMethod(),
-            $this->getMd5(),
-            self::TYPE,
+            $this->getType(),
             $this->getDate(),
             $headers_string,
-            $this->getAllResource()
+            $this->getResourcePrefix() . $this->getAllResource()
         );
         return $this->getInterface() . ' ' . $this->accessKey . ':' . base64_encode(hash_hmac('sha1', $signatureString, $this->accessSecret, true));
     }

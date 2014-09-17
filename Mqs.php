@@ -16,6 +16,7 @@ class Mqs extends Queue
 {
 
     const VERSION = '2014-07-08';
+    const TYPE = 'text/xml;utf-8';
     public $queueName;
     public $accessSecret;
     public $accessKey;
@@ -34,6 +35,7 @@ class Mqs extends Queue
             ->setHeader('x-mqs-version', self::VERSION)
             ->setInterface(Aliyun::MQS_INTERFACE)
             ->setResource('/' . $this->queueName . '/messages')
+            ->setType(self::TYPE)
             ->setUrl($this->url);
     }
 
